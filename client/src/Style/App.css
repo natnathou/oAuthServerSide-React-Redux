@@ -1,0 +1,30 @@
+/*menu responsive */
+
+@media screen and (min-width: 992px) {
+    .overflowCondition {
+        display: none !important;
+    }
+}
+
+.containerPushable {
+    position: relative;
+}
+
+
+.Pushables {
+    display: block ;
+    position: absolute;
+    right: 70px;
+    top: -50px;
+    z-index: 10;
+}
+
+.buttonHamburger{
+    margin: 0px !important;
+    color: #f9fafb !important;
+}
+
+.buttonHamburger:hover{
+    background: rgba(0,0,0,.03) !important;
+    color: rgba(0,0,0,.95) !important;
+}

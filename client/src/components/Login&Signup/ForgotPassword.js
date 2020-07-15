@@ -22,7 +22,7 @@ class ForgotPassword extends React.Component {
     render() {
         return (
             <div className="ui placeholder segment">
-                <div className="ui two column centered grid">
+                <div className="ui one column centered grid">
                     <div className="column">
                         <Form
                             formField={formField}

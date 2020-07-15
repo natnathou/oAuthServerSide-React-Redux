@@ -7,8 +7,25 @@ import formField from "../Form/json/formField"
 import {setResponseMessageError} from "../../actions/actions"
 
 class Login extends React.Component {
+    state={mobile: false}
+
     componentDidMount() {
         this.props.setResponseMessageError("", `login`)
+        this.updateWindowDimensions();
+        window.addEventListener('resize', this.updateWindowDimensions);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.updateWindowDimensions);
+    }
+    
+    updateWindowDimensions=()=> {
+        if(window.innerWidth >=768){
+            this.setState({mobile: false})
+        } else{
+            this.setState({mobile: true})
+        }
+        
     }
 
     renderLoader = () => {
@@ -34,9 +51,16 @@ class Login extends React.Component {
                         <Social nameForm={`login`}/>
                     </div>
                 </div>
-                <div className="ui vertical divider">
+                {
+                    !this.state.mobile
+                    ?
+                    <div className="ui vertical divider">
                     Or
-                </div>
+                    </div>
+                    :
+                    null
+                }
+                
                 {this.renderLoader()}
             </div>
         )

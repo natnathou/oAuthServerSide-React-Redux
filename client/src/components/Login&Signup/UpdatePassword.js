@@ -8,7 +8,7 @@ import history from "../../history/History"
 import {setResponseMessageError} from "../../actions/actions"
 
 class UpdatePassword extends React.Component {
-    state={authenticated:false,user:null,error:null}
+    state={authenticated:false,user:null,error:null,mobile: false}
     
     componentDidMount(){
         this.props.setResponseMessageError("",`updatePassword`)
@@ -42,6 +42,7 @@ class UpdatePassword extends React.Component {
     
     }
 
+
     renderLoader=()=>{
       if(this.props.attemptingResponse){
           return  <div className="ui active inverted dimmer">
@@ -54,8 +55,9 @@ class UpdatePassword extends React.Component {
         render(){
             if(this.state.authenticated){
                 return (
+                
                     <div className="ui placeholder segment">
-                        <div className="ui two column centered grid">
+                        <div className="ui one column centered grid">
                             <div className="column">
                                 <Form
                                     formField={formField}

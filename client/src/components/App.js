@@ -6,11 +6,12 @@ import Signup from "./Login&Signup/Signup"
 import Login from "./Login&Signup/Login"
 import ForgotPassword from "./Login&Signup/ForgotPassword"
 import UpdatePassword from "./Login&Signup/UpdatePassword"
+import "../Style/App.css"
 
 const App = () => {
     return (
         <Router history={history}>
-            <div className="ui container">
+            <div className="ui container App">
                 <Header/>
                 <Switch>
                     <Route exact path="/signup">

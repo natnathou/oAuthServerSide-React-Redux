@@ -23,7 +23,10 @@ import {
 import "./style/Form.css"
 
 
+
 class Form extends React.Component {
+
+
 
     componentDidMount() {
         //value form initialization
@@ -31,6 +34,9 @@ class Form extends React.Component {
 
         this.initializePropsValue(this.props.formField)
         //value props initilization
+        
+        
+;
 
     }
 
@@ -298,12 +304,11 @@ class Form extends React.Component {
         }
     }
 
-    renderResponseMessageError = () => {
-        if (this.props.responseErrorMessage !== "") {
+    renderResponseMessageError=()=>{
+        if(this.props.responseErrorMessage!==""){
             return <div className="Error">{this.props.responseErrorMessage}</div>
         }
     }
-
 
 //methode to map our json and check which input we will render
     renderInput = json => json.map((data, index) => {
@@ -321,10 +326,10 @@ class Form extends React.Component {
                         }
                         break
                     case "list":
-                        if (this.props.formProps[data.name]["touch"] && this.props.formValue[data.name] === data.optionArray[0] && data.required) {
+                        if (this.props.formProps[data.name]["touch"] && this.props.formValue[data.name] === data.optionArray[0]  && data.required) {
                             error = true;
                         }
-                        if (this.props.displayError && this.props.formValue[data.name] === data.optionArray[0] && data.required) {
+                        if (this.props.displayError && this.props.formValue[data.name] === data.optionArray[0]  && data.required) {
                             error = true;
                         }
                         break
@@ -357,7 +362,7 @@ class Form extends React.Component {
                         if (this.props.formProps[data.name]["filesContent"][0] !== "" && this.props.formProps[data.name]["filesContent"].length > 1) {
                             textLabel = `${this.props.formProps[data.name]["filesContent"].length} Files Uploaded`
                         }
-
+                        
                         return (
                             <div key={index}>
                                 <InputFileField
@@ -731,34 +736,33 @@ class Form extends React.Component {
         }
     }
 
-    handSubmit = (event) => {
+    handSubmit=(event)=>{
         event.preventDefault()
         this.props.formSend(this.props.nameForm)
     }
 
-    handKeyPress = (event) => {
-        if (event.key === "Enter") {
-            this.handSubmit(event)
-        } else {
-            this.handleChange(event)
+    handKeyPress=(event)=>{
+        if(event.key==="Enter" && event.target.tagName !== "TEXTAREA"){
+            this.handSubmit(event)            
+        }
+        else{
+            event.stopPropagation()
         }
     }
 
 
     render() {
-        let classNames
-        this.props.attemptingResponse ? classNames = "ui Form segment" : classNames = "Form"
         return (
-            <form
-                className={classNames}
-                onSubmit={this.handSubmit}
+            <form 
+                className="Form" 
+                onSubmit={this.handSubmit} 
                 onKeyPress={this.handKeyPress}
             >
-
+            
                 {this.renderInput(this.props.formField)}
                 {this.renderResponseMessageError()}
-                <Button
-                    formField={this.props.formField}
+                <Button 
+                    formField={this.props.formField} 
                     buttonField={this.props.buttonField}
                     nameForm={this.props.nameForm}
                     formSend={this.handSubmit}
@@ -776,7 +780,7 @@ const mapStateToProps = (state, ownProps) => {
         formValue           : state.formValue[ownProps.nameForm],
         formProps           : state.formProps[ownProps.nameForm],
         displayError        : state.displayError[ownProps.nameForm],
-        responseErrorMessage: state.responseErrorMessage[ownProps.nameForm],
+        responseErrorMessage:state.responseErrorMessage[ownProps.nameForm],
         formField           : ownProps.formField[ownProps.nameForm],
         buttonField         : ownProps.buttonField[ownProps.nameForm],
     }
