@@ -4,6 +4,7 @@ import formPropsReducer from './formPropsReducer'
 import formErrorReducer from "./formErrorReducer"
 import responseErrorMessageReducer from "./responseErrorMessageReducer"
 import attemptingResponseReducer from "./attemptingResponseReducer"
+import authenticatedReducer from "./authenticatedReducer"
 
 
 export default combineReducers({
@@ -11,5 +12,6 @@ export default combineReducers({
     formProps           : formPropsReducer,
     displayError        : formErrorReducer,
     responseErrorMessage: responseErrorMessageReducer,
-    attemptingResponse  : attemptingResponseReducer
+    attemptingResponse  : attemptingResponseReducer,
+    authenticated       : authenticatedReducer
 })

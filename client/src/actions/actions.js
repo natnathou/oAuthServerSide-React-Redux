@@ -14,7 +14,8 @@ import {
     DISPLAY_ERROR,
     RESPONSE_ERROR_MESSAGE,
     ATTEMPTING_RESPONSE,
-    SIGN_IN_SOCIAL_NETWORK
+    SIGN_IN_SOCIAL_NETWORK,
+    TEST_AUTHENTICATED
 } from "./type"
 
 
@@ -168,7 +169,13 @@ export const formSend = (nameForm) => async (dispatch, getState) => {
 
                     let response = await axios.post(`/auth/update-password`, param, config)
                     if (response.status === 200) {
-                        window.location = response.data.redirect
+                        
+                        dispatch(displayLoader(false, nameForm))
+                        dispatch(setResponseMessageError(response.data.message, nameForm))
+                        
+                        if (response.data.redirect) {
+                            window.location = response.data.redirect
+                        }
                     }
                 } catch (e) {
                     console.log(e)
@@ -367,12 +374,10 @@ export const setResponseMessageError = (message, formName) => {
 
 //to displayLoader
 export const displayLoader = (status, formName) => {
-    console.log("dans action")
     return {type: ATTEMPTING_RESPONSE, payload: status, formName: formName}
 }
 
 export const signInSocialNetwork = (network, formName) => async dispatch => {
-    console.log(network)
     await dispatch(displayLoader(true, formName))
     switch (network) {
         case "google":
@@ -384,4 +389,9 @@ export const signInSocialNetwork = (network, formName) => async dispatch => {
         default:
             return {type: SIGN_IN_SOCIAL_NETWORK}
     }
+}
+
+
+export const authenticatedTest = (status, user, error) =>{        
+    return {type: TEST_AUTHENTICATED, payload: {status, user, error}}
 }

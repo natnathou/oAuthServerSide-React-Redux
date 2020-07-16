@@ -12,11 +12,19 @@ const GoogleStrategy   = passportGoogle.OAuth2Strategy
 passport.use(new LocalStrategy(
     async (username, password, done) => {
         try {
-            let user = await User.findOne({username: utilities.encrypt(username, process.env.KEY_ENCRYPTION).encryptedData})
-            if (!user || !user.validatePassword(password)) {
+            let exist=false;
+            let i=0;
+            let allUser = await User.find({})
+            allUser.forEach((users,index)=>{
+                if(username === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                    exist=true;
+                    i=index
+                }
+            })
+            if (!allUser[i] || !allUser[i].validatePassword(password)) {
                 return done(null, false)
             } else {
-                return done(null, user);
+                return done(null, allUser[i]);
             }
 
         } catch (e) {
@@ -31,29 +39,35 @@ passport.use(
             // options for the google start
             clientID    : process.env.GOOGLE_CONSUMER_KEY,
             clientSecret: process.env.GOOGLE_CONSUMER_SECRET,
-            callbackURL : "/auth/google/redirect",
+            callbackURL : `${process.env.URL_SERVER}/auth/google/redirect`,
         },
         async (token, refreshToken, profile, cb) => {
             try {
-                // find current user in UserModel
-                const currentUser = await User.findOne({
-                    email: utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
-                });
+                let exist=false;
+                let i=0;
+                let allUser = await User.find({})
+                allUser.forEach((users,index)=>{
+                    if(profile.emails[0].value === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                        exist=true;
+                        i=index;
+                    }
+                })                
                 // create new user if the database doesn't have this user
-                if (!currentUser) {
+                if (!exist) {
                     let newUser = await User.create({
                         username  : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
                         provider  : utilities.encrypt(profile.provider, process.env.KEY_ENCRYPTION).encryptedData,
                         idProvider: utilities.encrypt(profile.id, process.env.KEY_ENCRYPTION).encryptedData,
                         name      : utilities.encrypt(profile.displayName, process.env.KEY_ENCRYPTION).encryptedData,
-                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
+                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
+                        iv        : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).iv
                     });
                     await newUser.setPassword(token);
                     await newUser.save();
                     console.log(newUser);
                     cb(null, newUser)
                 } else {
-                    cb(null, currentUser)
+                    cb(null, allUser[i])
                 }
             } catch (e) {
                 console.log(e)
@@ -69,30 +83,38 @@ passport.use(
             // options for the facebook start
             clientID     : process.env.FACEBOOK_CONSUMER_KEY,
             clientSecret : process.env.FACEBOOK_CONSUMER_SECRET,
-            callbackURL  : "/auth/facebook/redirect",
+            callbackURL  : `${process.env.URL_SERVER}/auth/facebook/redirect`,
             profileFields: ['id', 'displayName', 'emails']
         },
         async (token, refreshToken, profile, cb) => {
             try {
                 // find current user in UserModel
-                const currentUser = await User.findOne({
-                    email: utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
-                });
+                let exist=false;
+                let i=0;
+                let allUser = await User.find({})
+                allUser.forEach((users,index)=>{
+                        console.log(users)
+                        if(profile.emails[0].value === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                            exist=true;
+                            i=index;
+                        }
+                })              
                 // create new user if the database doesn't have this user
-                if (!currentUser) {
+                if (!exist) {
                     let newUser = await User.create({
                         username  : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
                         provider  : utilities.encrypt(profile.provider, process.env.KEY_ENCRYPTION).encryptedData,
                         idProvider: utilities.encrypt(profile.id, process.env.KEY_ENCRYPTION).encryptedData,
                         name      : utilities.encrypt(profile.displayName, process.env.KEY_ENCRYPTION).encryptedData,
-                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
+                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
+                        iv        : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).iv
                     });
                     await newUser.setPassword(token);
                     await newUser.save();
                     console.log(newUser);
                     cb(null, newUser)
                 } else {
-                    cb(null, currentUser)
+                    cb(null, allUser[i])
                 }
             } catch (e) {
                 console.log(e);
@@ -108,30 +130,37 @@ passport.use(
             // options for the facebook start
             consumerKey   : process.env.TWITTER_CONSUMER_KEY,
             consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-            callbackURL   : "/auth/twitter/redirect",
+            callbackURL   : `${process.env.URL_SERVER}/auth/twitter/redirect`,
             includeEmail  : true
         },
         async (token, refreshToken, profile, cb) => {
             try {
                 // find current user in UserModel
-                const currentUser = await User.findOne({
-                    email: utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
-                });
+                let exist=false;
+                let i=0;
+                let allUser = await User.find({})
+                allUser.forEach((users,index)=>{
+                    if(profile.emails[0].value === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                        exist=true;
+                        i=index;
+                    }
+                })   
                 // create new user if the database doesn't have this user
-                if (!currentUser) {
+                if (!exist) {
                     let newUser = await User.create({
                         username  : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
                         provider  : utilities.encrypt(profile.provider, process.env.KEY_ENCRYPTION).encryptedData,
                         idProvider: utilities.encrypt(profile.id, process.env.KEY_ENCRYPTION).encryptedData,
                         name      : utilities.encrypt(profile.displayName, process.env.KEY_ENCRYPTION).encryptedData,
-                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData
+                        email     : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).encryptedData,
+                        iv        : utilities.encrypt(profile.emails[0].value, process.env.KEY_ENCRYPTION).iv
                     });
                     await newUser.setPassword(token);
                     await newUser.save();
                     console.log(newUser);
                     cb(null, newUser)
                 } else {
-                    cb(null, currentUser)
+                    cb(null, allUser[i])
                 }
             } catch (e) {
                 console.log(e)

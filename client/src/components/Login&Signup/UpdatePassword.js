@@ -4,7 +4,7 @@ import Form from "../Form/Form"
 import buttonField from "../Form/json/buttonField"
 import formField from "../Form/json/formField"
 import Cookies from "js-cookie"
-import history from "../../history/History"
+import history from "../../history/history"
 import {setResponseMessageError} from "../../actions/actions"
 
 class UpdatePassword extends React.Component {

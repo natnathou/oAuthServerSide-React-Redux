@@ -33,18 +33,24 @@ router.get("/logout", (req, res) => {
 
 
 router.post("/register", async (req, res, next) => {
-    console.log(req.body);
     try {
-        let user = await User.findOne({username: utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).encryptedData})
-        console.log(user);
-        if (user) {
+        let exist=false;
+        let allUser = await User.find({})
+        allUser.forEach(users=>{
+            if(users.username && req.body.username === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                exist=true;
+            }
+        })
+        if(exist){
             res.json({
                 message: "User already exist"
             })
-        } else {
+        } 
+        else {
             let user = await User.create({
                 username: utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).encryptedData,
-                email   : utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).encryptedData
+                email   : utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).encryptedData,
+                iv      : utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).iv
             })
             await user.setPassword(req.body.password);
             await user.save();
@@ -59,7 +65,7 @@ router.post("/register", async (req, res, next) => {
     failureRedirect: "/auth/login/failed"
 }), (req, res) => {
     let token = jwt.sign({data: req.user}, process.env.TOP_SECRET, {expiresIn: 3600});  // expiry in seconds
-    res.cookie('jwt', token);
+    res.cookie('jwt', token, { maxAge: 36000});
     res.json({
         redirect: CLIENT_HOME_PAGE_URL
     });
@@ -67,14 +73,21 @@ router.post("/register", async (req, res, next) => {
 
 
 router.post("/login", async (req, res, next) => {
-        let user = await User.findOne({username: utilities.encrypt(req.body.username, process.env.KEY_ENCRYPTION).encryptedData})
-        console.log(user);
-        if (!user) {
+        let exist=false;
+        let i=0
+        let allUser = await User.find({})
+        allUser.forEach((users, index)=>{
+            if(users.username && req.body.username === utilities.decrypt(users.username, users.iv, process.env.KEY_ENCRYPTION)){
+                exist=true;
+                i=index
+            }
+        })
+        if (!exist) {
             res.json({
                 message: "User doesn't exist"
             });
             console.log("User doesn't exist");
-        } else if (!user.validatePassword(req.body.password)) {
+        } else if (!allUser[i].validatePassword(req.body.password)) {
             console.log("Password doesn't match");
             res.json({
                 message: "Password doesn't match"
@@ -89,7 +102,7 @@ router.post("/login", async (req, res, next) => {
     }),
     (req, res) => {
         let token = jwt.sign({data: req.user}, process.env.TOP_SECRET, {expiresIn: 3600});  // expiry in seconds
-        res.cookie('jwt', token);
+        res.cookie('jwt', token, { maxAge: 36000});
         res.json({
             redirect: CLIENT_HOME_PAGE_URL
         });
@@ -123,7 +136,7 @@ router.get("/google/redirect",
         }),
     (req, res) => {
         let token = jwt.sign({data: req.user}, process.env.TOP_SECRET, {expiresIn: 3600});  // expiry in seconds
-        res.cookie('jwt', token);
+        res.cookie('jwt', token, { maxAge: 36000});
         res.redirect(CLIENT_HOME_PAGE_URL);
     }
 );
@@ -137,7 +150,7 @@ router.get("/facebook/redirect",
         }),
     (req, res) => {
         let token = jwt.sign({data: req.user}, process.env.TOP_SECRET, {expiresIn: 3600});  // expiry in seconds
-        res.cookie('jwt', token);
+        res.cookie('jwt', token, { maxAge: 36000});
         res.redirect(CLIENT_HOME_PAGE_URL);
     }
 );
@@ -152,7 +165,7 @@ router.get("/twitter/redirect",
         }),
     (req, res) => {
         let token = jwt.sign({data: req.user}, process.env.TOP_SECRET, {expiresIn: 3600});  // expiry in seconds
-        res.cookie('jwt', token);
+        res.cookie('jwt', token, { maxAge: 36000});
         res.redirect(CLIENT_HOME_PAGE_URL);
     }
 );

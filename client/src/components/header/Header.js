@@ -1,20 +1,20 @@
 import React, {Component} from 'react'
 import Cookies from "js-cookie"
+import {connect} from "react-redux"
 import {Link} from "react-router-dom"
+import {authenticatedTest} from "../../actions/actions"
 
 
-export default class Header extends Component {
+class Header extends Component {
     constructor(props){
         super(props)
         this.refPushable = React.createRef()
         this.refToggle = React.createRef()
     }
     state = {
-        user         : {},
-        error        : null,
-        authenticated: true,
         toggle       : false
     }
+
 
 
     componentDidMount() {
@@ -30,20 +30,14 @@ export default class Header extends Component {
         })
             .then(response => {
                 if (response.status === 200) return response.json();
-                throw new Error("failed to authenticate user");
+                throw new Error("Failed to authenticate user");
             })
             .then(responseJson => {
-                console.log(responseJson);
-                this.setState({
-                    authenticated: true,
-                    user         : responseJson.user.data
-                });
+                this.props.authenticatedTest(true, responseJson.user.data, false)
             })
             .catch(error => {
-                this.setState({
-                    authenticated: false,
-                    error        : "Failed to authenticate user"
-                });
+                this.props.authenticatedTest(false, false, error)
+
             });
 
             this.updateWindowDimensions();
@@ -81,7 +75,7 @@ export default class Header extends Component {
     };
 
     _handleLogout = () => {
-        window.open(`${process.env.REACT_URL_SERVER}/auth/logout`, "_self");
+        window.open(`${process.env.REACT_APP_URL_SERVER}/auth/logout`, "_self");
         Cookies.set('jwt', false);
     };
 
@@ -102,7 +96,7 @@ export default class Header extends Component {
                                 <h4 className="right menu">
                                                                          
                                         {
-                                        !this.state.authenticated 
+                                        !this.props.authenticated.status
                                             ?
                                             <div className="item">   
                                                 
@@ -116,7 +110,7 @@ export default class Header extends Component {
                                             null
                                         }
                                         {
-                                        !this.state.authenticated 
+                                        !this.props.authenticated.status
                                             ?
                                             <div className="item">
                                         
@@ -173,7 +167,7 @@ export default class Header extends Component {
                                 <div className="ui floated right">
                                     <div className="ui vertical menu">
                                         {
-                                        !this.state.authenticated 
+                                        !this.props.authenticated.status 
                                             ?
                                                 
                                             <Link to="/login" className="ui teal button item buttonHamburger">
@@ -183,7 +177,7 @@ export default class Header extends Component {
                                             null
                                         }
                                         {
-                                        !this.state.authenticated 
+                                        !this.props.authenticated.status 
                                             ?
                                         
                                             <Link to="/signup" className="ui item button blue-twitter buttonHamburger">
@@ -211,3 +205,14 @@ export default class Header extends Component {
         )
     }
 }
+
+
+const mapStateToProps = (state) => {
+    return {
+        authenticated: state.authenticated
+    }
+
+};
+export default connect(
+    mapStateToProps, {authenticatedTest}
+)(Header)

@@ -3,15 +3,16 @@ const crypto   = require('crypto')
 const Schema   = mongoose.Schema
 
 const userSchema = new Schema({
-    username  : String,
+    username  : Object,
     password  : String,
-    provider  : String,
-    idProvider: String,
-    name      : String,
-    email     : String,
+    provider  : Object,
+    idProvider: Object,
+    name      : Object,
+    email     : Object,
     token     : String,
     hash      : String,
-    salt      : String
+    salt      : String,
+    iv        : String
 })
 
 userSchema.methods.setPassword = function (password) {

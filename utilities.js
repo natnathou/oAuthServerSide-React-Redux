@@ -9,9 +9,9 @@ exports.encrypt = (text, key) => {
     return {iv: iv.toString('hex'), encryptedData: encrypted.toString('hex')}
 };
 
-exports.decrypt = (text, key) => {
-    let iv            = Buffer.from(text.iv, 'hex')
-    let encryptedText = Buffer.from(text.encryptedData, 'hex')
+exports.decrypt = (text, Iv, key) => {
+    let iv            = Buffer.from(Iv, 'hex')
+    let encryptedText = Buffer.from(text, 'hex')
     let decipher      = crypto.createDecipheriv(algorithm, Buffer.alloc(32, key), iv)
     let decrypted     = decipher.update(encryptedText)
     decrypted         = Buffer.concat([decrypted, decipher.final()]);

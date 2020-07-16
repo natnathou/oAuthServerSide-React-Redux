@@ -6,6 +6,7 @@ const session       = require("express-session")
 const mongoose      = require("mongoose")
 const cookieParser  = require("cookie-parser") // parse cookie header
 const bodyParser    = require("body-parser")
+const utilities     = require("./utilities")
 
 dotenv.config()
 const app  = express()
@@ -60,29 +61,6 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/auth", forgotPassword);
 
-// const authCheck = (req, res, next) => {
-//     if (!req.user) {
-//       res.status(401).json({
-//         authenticated: false,
-//         message      : "user has not been authenticated"
-//       });
-//     } else {
-//       next()
-//     }
-//   };
-
-
-// // if it's already login, send the profile response,
-// // otherwise, send a 401 response that the user is not authenticated
-// // authCheck before navigating to home page
-// app.get("/", authCheck, (req, res) => {
-// res.status(200).json({
-//     authenticated: true,
-//     message      : "user successfully authenticated",
-//     user         : req.user,
-//     cookies      : req.cookies
-// });
-// });
 
 // connect react to nodejs express server
 app.listen(port, () => console.log(`Server is running on port ${port}!`));

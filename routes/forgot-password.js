@@ -9,7 +9,6 @@ const CLIENT_HOME_PAGE_URL = process.env.URL_CLIENT;
 
 router.post("/forgot-password", async (req, res) => {
     let email = req.body.email
-    let userFind
     let token = jwt.sign({email: email}, process.env.TOP_SECRET, {expiresIn: 300})  // expiry in seconds
 
     let urlRedirection = `${process.env.URL_SERVER}/auth/update-password/?secret_token=${token}`
@@ -39,11 +38,19 @@ router.post("/forgot-password", async (req, res) => {
     })
 
     try {
-        userFind = await User.findOne({email: utilities.encrypt(email, process.env.KEY_ENCRYPTION).encryptedData});
-        console.log(userFind);
-        if (userFind) {
-            await userFind.updateOne({token: utilities.encrypt(token, process.env.KEY_ENCRYPTION).encryptedData});
-            await userFind.save();
+        let exist=false;
+        let i=0
+        let allUser = await User.find({})
+        allUser.forEach((users, index)=>{
+            if(email === utilities.decrypt(users.email, users.iv, process.env.KEY_ENCRYPTION)){
+                exist=true;
+                i=index
+            }
+        })
+
+        if (exist) {
+            await allUser[i].updateOne({token: utilities.encrypt(token, process.env.KEY_ENCRYPTION).encryptedData});
+            await allUser[i].save();
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                      console.log(error);
@@ -86,21 +93,34 @@ router.get("/update-password/authenticate", passport.authenticate("jwt", {sessio
 
 router.post("/update-password/", passport.authenticate("jwt", {session: false}),
     async (req, res, next) => {
-        let user = await User.findOne({token: utilities.encrypt(req.body.token, process.env.KEY_ENCRYPTION).encryptedData})
-        if (user) {
-            user.setPassword(req.body.password);
-            user.save();
-            console.log('Password reset successful');
-            res.json(
-                {redirect: `${CLIENT_HOME_PAGE_URL}/login`}
-            )
+        try{
+            let exist=false;
+            let i=0
+            let allUser = await User.find({})
+            allUser.forEach((users, index)=>{
+                if(req.body.token === utilities.decrypt(users.token, users.iv, process.env.KEY_ENCRYPTION)){
+                    exist=true;
+                    i=index
+                }
+            })
+            if (exist) {
+                allUser[i].setPassword(req.body.password);
+                allUser[i].save();
+                console.log('Password reset successful');
+                res.json(
+                    {redirect: `${CLIENT_HOME_PAGE_URL}/login`}
+                )
 
-        } else {
-            console.log("Password not change");
-            res.json(
-                {message: `User doesn't exist!`}
-            )
-        }
+            } else {
+                console.log("Password not change");
+                res.json(
+                    {message: `User doesn't exist!`}
+                )
+            }
+
+        }  catch(e){
+            console.log(e)
+        }      
 
     });
 
