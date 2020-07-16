@@ -7,6 +7,7 @@ const mongoose      = require("mongoose")
 const cookieParser  = require("cookie-parser") // parse cookie header
 const bodyParser    = require("body-parser")
 const utilities     = require("./utilities")
+const path          = require("path")
 
 dotenv.config()
 const app  = express()
@@ -61,6 +62,11 @@ app.use(passport.session());
 app.use("/auth", authRoutes);
 app.use("/auth", forgotPassword);
 
+// app.use(express.static(path.join(__dirname, 'client/build')));
+
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname+'/client/build/index.html'));
+// });
 
 // connect react to nodejs express server
 app.listen(port, () => console.log(`Server is running on port ${port}!`));
